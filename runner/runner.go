@@ -9,6 +9,7 @@ import (
 type Runner struct {
 	Path      string
 	Arguments []string
+	ErrorHandler func(error)
 	command   *exec.Cmd
 }
 
@@ -16,6 +17,7 @@ func NewRunner(path string, arguments ...string) *Runner {
 	return &Runner{
 		Path: path,
 		Arguments: arguments,
+		ErrorHandler: func(err error) { log.Panic(err) },
 	}
 }
 
@@ -32,17 +34,11 @@ func (runner *Runner) Command(additonalArguments ...string) *exec.Cmd {
 
 func (runner *Runner) PipeCommand(additonalArguments ...string) (*exec.Cmd, io.WriteCloser) {
 	runner.Command(additonalArguments...)
-	stdin := runner.StdinPipe()
-
-	return runner.command, stdin
-}
-
-func (runner *Runner) StdinPipe() io.WriteCloser {
 	stdin, err := runner.command.StdinPipe()
 
-	if err != nil {
-		log.Panic(err)
+	if (err != nil) {
+		runner.ErrorHandler(err)
 	}
 
-	return stdin
+	return runner.command, stdin
 }
