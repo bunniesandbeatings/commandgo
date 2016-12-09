@@ -3,21 +3,20 @@ package commandgo
 import (
 	"io"
 	"os/exec"
-	"log"
 )
 
 type Runner struct {
+	HandlesErrors
 	Path      string
 	Arguments []string
-	ErrorHandler func(error)
 	command   *exec.Cmd
 }
 
 func NewRunner(path string, arguments ...string) *Runner {
 	return &Runner{
+		HandlesErrors: NewHandlesErrors(),
 		Path: path,
 		Arguments: arguments,
-		ErrorHandler: func(err error) { log.Panic(err) },
 	}
 }
 

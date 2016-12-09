@@ -7,18 +7,16 @@ import (
 )
 
 type Fixture struct {
+	HandlesErrors
 	Prefix       string
-	ErrorHandler func(error)
 	name         string
 	file         *os.File
 }
 
 func NewFixture(prefix string) *Fixture {
 	fixture := &Fixture{
+		HandlesErrors: NewHandlesErrors(),
 		Prefix: prefix,
-		ErrorHandler: func(err error) {
-			log.Panic(err)
-		},
 	}
 
 	fixture.build()
