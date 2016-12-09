@@ -22,7 +22,25 @@ In this library I specifically set out to:
     }
     ```
     
-    with code that assumes you always want setup to fail (or handle all setup errors orthogonally)
+    with code that assumes you always want setup to fail (or handle all setup errors orthogonally).
+    
+    **Note:** this means a lot of what you see in this lib will effectively be a decorator that removes the `error` from
+    function return types of standard library functions.
+    
+    This code from `fixture.go` is an example. It also makes the method fluent, for a little more elegance in your tests.
+    
+    ```
+    func (fixture *Fixture) Write(bytes []byte) *Fixture {
+    	_, writeError := fixture.file.Write(bytes)
+    
+    	if (writeError != nil) {
+    		fixture.ErrorHandler(writeError)
+    	}
+    
+    	return fixture
+    }
+    ```
+      
   
   * make it easier to set up SUTs with incremental context changes in the BeforeEach block.
 

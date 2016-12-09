@@ -1,7 +1,6 @@
 package commandgo
 
 import (
-	"log"
 	"io/ioutil"
 	"os"
 )
@@ -39,7 +38,7 @@ func (fixture *Fixture) Write(bytes []byte) *Fixture {
 	_, writeError := fixture.file.Write(bytes)
 
 	if (writeError != nil) {
-		log.Panic(writeError)
+		fixture.ErrorHandler(writeError)
 	}
 
 	return fixture
@@ -47,9 +46,9 @@ func (fixture *Fixture) Write(bytes []byte) *Fixture {
 }
 
 func (fixture *Fixture) Close() *Fixture {
-	err := fixture.file.Close()
-	if (err != nil) {
-		log.Panic(err)
+	closeError := fixture.file.Close()
+	if (closeError != nil) {
+		fixture.ErrorHandler(closeError)
 	}
 
 	return fixture
