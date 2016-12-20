@@ -3,6 +3,9 @@ package commandgo
 import (
 	"io"
 	"os/exec"
+	"github.com/onsi/gomega/gexec"
+	"fmt"
+	"github.com/onsi/ginkgo"
 )
 
 type Runner struct {
@@ -10,13 +13,17 @@ type Runner struct {
 	Path      string
 	Arguments []string
 	command   *exec.Cmd
+	OutWriter io.Writer
+	ErrWriter io.Writer
 }
 
 func NewRunner(path string, arguments ...string) *Runner {
 	return &Runner{
 		HandlesErrors: NewHandlesErrors(),
-		Path: path,
-		Arguments: arguments,
+		Path:          path,
+		Arguments:     arguments,
+		OutWriter:     ginkgo.GinkgoWriter,
+		ErrWriter:     ginkgo.GinkgoWriter,
 	}
 }
 
@@ -40,4 +47,34 @@ func (runner *Runner) PipeCommand(additonalArguments ...string) (*exec.Cmd, io.W
 	}
 
 	return runner.command, stdin
+}
+
+
+func (runner *Runner) Execute() *gexec.Session {
+	command := runner.Command()
+
+	session, err := gexec.Start(command, runner.OutWriter, runner.ErrWriter)
+	if err != nil {
+		runner.ErrorHandler(err)
+	}
+
+	return session
+}
+
+
+// The ExecuteWithInput function is a utility function that runs a PipeCommand and passes
+// the input string to the command. It closes stdin to ensure the command completes and returns
+// a gexec.Session you can use to evaluate output.
+func (runner *Runner) ExecuteWithInput(input string) *gexec.Session {
+	command, stdin := runner.PipeCommand()
+
+	session, err := gexec.Start(command, runner.OutWriter, runner.ErrWriter)
+	if err != nil {
+		runner.ErrorHandler(err)
+	}
+
+	fmt.Fprint(stdin, input)
+	stdin.Close()
+
+	return session
 }
