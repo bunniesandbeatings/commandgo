@@ -59,7 +59,7 @@ committed with your code) then this is the struct for you.
       Write([]byte(fixtureText)).
       Close()
   
-    runner = NewRunner("path/to/executable", "-f", fixture.Name())
+    executable = NewExecutableContext("path/to/executable", "-f", fixture.Name())
   }
 ```
 
@@ -80,36 +80,36 @@ or use [heredoc](https://github.com/MakeNowJust/heredoc)
       Write([]byte(fixtureText)).
       Close()
   
-    runner = NewRunner("path/to/executable", "-f", fixture.Name())
+    executable = NewExecutableContext("path/to/executable", "-f", fixture.Name())
   }
 ```
 
-## Runner
+## ExecutableContext
 
 Testing executable commands In Go is about building up contexts, so `exec.Command` 
-gets replaced with `Runner.Command`, and Runner is a context:
+gets replaced with `ExecutableContext.Command`, and ExecutableContext is a context:
 
 ```
   var _ = Describe("My Cool Executable, be-cool subcommand", func() {
 
-    var runner *Runner
+    var executable *ExecutableContext
   
     BeforeEach(func() {
-      runner = NewRunner("path/to/my/executable, "be-cool")
+      executable = NewExecutableContext("path/to/my/executable, "be-cool")
     })
   
     Context("with verbose mode on", func() {
       BeforeEach(func() {
-        runner.AddArguments("-v")
+        executable.AddArguments("-v")
       })
   
       Context("Passing a valid cool-factor", func() {
         BeforeEach(func() {
-          runner.AddArguments("--cool-factor", "chillaxed")
+          executable.AddArguments("--cool-factor", "chillaxed")
         })
   
         It("makes things cool", func() {
-          command, stdin := runner.PipeCommand()
+          command, stdin := executable.PipeCommand()
   
           session, err := Start(command, GinkgoWriter, GinkgoWriter)
           Expect(err).ToNot(HaveOccurred())
@@ -124,11 +124,11 @@ gets replaced with `Runner.Command`, and Runner is a context:
   
       Context("Passing an invalid cool-factor", func() {
         BeforeEach(func() {
-          runner.AddArguments("--cool-factor", "nerdy")
+          executable.AddArguments("--cool-factor", "nerdy")
         })
   
         It("is embarrassing", func() {
-          command, stdin := runner.PipeCommand()
+          command, stdin := executable.PipeCommand()
   
           session, err := Start(command, GinkgoWriter, GinkgoWriter)
           Expect(err).ToNot(HaveOccurred())
